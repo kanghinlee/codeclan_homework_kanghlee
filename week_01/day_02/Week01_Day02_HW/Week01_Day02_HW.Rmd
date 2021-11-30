@@ -9,9 +9,21 @@ select(drinks_content, "Beverage_category", "Beverage", "Beverage_prep", "Calori
 ```
 ```{r}
 drinks_content
-akcal <- mutate(drinks_content, calorie_diff = 135 - Calories)
-names(akcal, calorie_diff)
+min_drink_list <- select(drinks_content, "Beverage_category", "Beverage", "Beverage_prep", "Calories")
+akcal <- mutate(min_drink_list, calorie_diff = 135 - Calories)
+arrange(akcal, calorie_diff)
 ```
 
+
+```{r}
+be_group <- group_by(akcal, Beverage_category)
+be_group <- summarise(be_group, mean_kcal =  mean(Calories))
+arrange(be_group, desc(mean_kcal))
+```
+```{r}
+be_Prep_group <- group_by(akcal, Beverage_prep)
+be_Prep_group <- summarise(be_Prep_group, mean_kcal =  mean(Calories))
+arrange(be_Prep_group, desc(mean_kcal))
+```
 
 

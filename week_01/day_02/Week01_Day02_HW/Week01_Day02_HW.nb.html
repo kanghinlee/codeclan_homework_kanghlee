@@ -226,18 +226,37 @@ pre code {
 <!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmFtZXMoYWtjYWwsIGNhbG9yaWVfZGlmZilcblxuYGBgIn0= -->
-<pre class="r"><code>names(akcal, calorie_diff)
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZHJpbmtzX2NvbnRlbnRcbm1pbl9kcmlua19saXN0IDwtIHNlbGVjdChkcmlua3NfY29udGVudCwgXCJCZXZlcmFnZV9jYXRlZ29yeVwiLCBcIkJldmVyYWdlXCIsIFwiQmV2ZXJhZ2VfcHJlcFwiLCBcIkNhbG9yaWVzXCIpXG5ha2NhbCA8LSBtdXRhdGUobWluX2RyaW5rX2xpc3QsIGNhbG9yaWVfZGlmZiA9IDEzNSAtIENhbG9yaWVzKVxuYXJyYW5nZShha2NhbCwgY2Fsb3JpZV9kaWZmKVxuYGBgIn0= -->
+<pre class="r"><code>drinks_content
+min_drink_list &lt;- select(drinks_content, &quot;Beverage_category&quot;, &quot;Beverage&quot;, &quot;Beverage_prep&quot;, &quot;Calories&quot;)
+akcal &lt;- mutate(min_drink_list, calorie_diff = 135 - Calories)
+arrange(akcal, calorie_diff)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IG9iamVjdCAnY2Fsb3JpZV9kaWZmJyBub3QgZm91bmRcbiJ9 -->
-<pre><code>Error: object &#39;calorie_diff&#39; not found</code></pre>
-<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6OSwibmNvbCI6Miwic3VtbWFyeSI6eyJBIHRpYmJsZSI6WyI5IHggMiJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUJvVlN2MnZiUUJSK1Zxd1VHUkppU2lrQkR5Skw2QkJERXdMdGRzUkpTcUhRVUdmd1VBZ3ZwN044V0xxVFQyZTN6WlFoR2Jya0wyaXlkT25VUDZJZDhpOWs3OTYxVzl3Nyt3NXF0ZEFEU2UrKzk3NzM0M3Q2czkvYmFmUWFBTEFFOVZvQVM2RXhZYmx6OUhSN2R4dWdIcGhiRGVvUTJlOTdFL1hRR0JaY00wL2tIRkUzbDFJUE9Dc0J6aTNRT2xSWUZHTkt1WkRmdnNaN0dSTUpTK0tPN1BjWmM2VDFMazhGNnJGaThVRlpLRmFXTXQ1WFhBei9sMFI5LzVJekY5TTh4alByUEdhNFNONVlKTC9pNlVEL3U0L0huUXpMa3RPL3VwaTdIM1VIT0dRaWZra05jWTlObU1LVWVlZXl5d1N3YW1VZ284OVh6MzVjUFNlajE2M1JiVXNSU2F5YVFQS055ZWJwWkpQMG45eGRmN3k3SWNuUkhNZkxDLzZ6OTRLOC9XVENSN2VrQ2U0czZCNEt6SzIwTTgwREJ6WjlMeWNVTlV1bCt1Q1hrVE1VSjBPS1dTVk5wT1M3dGsrMVlsT2RtOWQwT3YxVnJVZXRJcTZlQnhzSmFtejNGVnJ0NGI1Q2VTQUx6YVV3cE1EK0lHR0ZYRk1WWUcwc2JDZkpGaDJNeFhCclo5ZFdtUG5uWjhYWjBSOTJNSzhaVEYydTBDK0JpWlFMdjg0d3cxT1d1Y3VxR1hrMmNic3dPOVYrRklPV2JTMDErcmdHbFpsSFpzUEIvVytkT1Y4UUdRTUFBQT09In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Beverage_category"],"name":[1],"type":["chr"],"align":["left"]},{"label":["mean_kcal"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Smoothies","2":"282.2222"},{"1":"Frappuccino® Blended Coffee","2":"276.9444"},{"1":"Signature Espresso Drinks","2":"250.0000"},{"1":"Frappuccino® Blended Crème","2":"233.0769"},{"1":"Tazo® Tea Drinks","2":"177.3077"},{"1":"Frappuccino® Light Blended Coffee","2":"162.5000"},{"1":"Classic Espresso Drinks","2":"140.1724"},{"1":"Shaken Iced Beverages","2":"114.4444"},{"1":"Coffee","2":"4.2500"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[9]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MTMsIm5jb2wiOjIsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiMTMgeCAyIl19fSwicmRmIjoiSDRzSUFBQUFBQUFBQm0xU3ZVN0RNQkIyMDZhb2tZTEt6d013d0Vna0NnaWtMbFpCUWd3RlJQbnBnaW8zZGRzUXh3NXUrSjNZMlhnRXhBUVRDd09DRitBVmVBR1kyUWwyWW9zUzFVcDBkOTk5ZDEvT2w5MzE1cUxWdEFBQWVWRElHU0J2Q2hjVTEzWVdLc3NWQUFxR2lIS2dBRXJTWGdqV2xIQWtXQmF2clJMV1laOFJQRlAzaUsrUWlRTk1JMjltaTlFdWlvWVRZNVc1NFhCeWd5UGF3YU9JRFhZWi9JWGxQVVRJQ0pxWkNHblZScC94YUFTcm1NcW9xQ0I3NmZxa1JOUFdXUmg2VE5NYWpEQmh4K1drOE9SVlhneUFJVXl0cit6eDRsTjE2cWtLdmM4WDUrYnVDN2F2V1AzcmJSVWUzZDl1enQ1dXd1YjdnemlQY0Q5NC9oQVAzRTRNaGJYcnRINFdwSFlhcVBQdnlrMktBanhRMTIwbzBLN2hNOHhSRDdkQ2prTUZsZ0tNYU10M0VjbTBLSEYyN3VnMnRtd2psZU00L3M1cXVRUU50SllHclE2S2tOUGxvbDVFUDVtU01SWkdIcU9peUpEL2haa3B6dkVNVUQ2bDhrczY4MjcvbFByelN5dFNJY21ueDFhK1BlUWJxYVlScTE2bVhoYW1QWS9xblpvRXRiRmU2cmdZT1puWUNibEg5WFl0Z1E2Y2lFVkk4eXlYRVkwa3c0R2ZYd2h1Ymp3UUF3QUEifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Beverage_prep"],"name":[1],"type":["chr"],"align":["left"]},{"label":["mean_kcal"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Whole Milk","2":"283.75000"},{"1":"Venti Nonfat Milk","2":"260.00000"},{"1":"2% Milk","2":"218.00000"},{"1":"Grande Nonfat Milk","2":"209.61538"},{"1":"Soymilk","2":"207.27273"},{"1":"Tall Nonfat Milk","2":"147.82609"},{"1":"Venti","2":"118.57143"},{"1":"Short Nonfat Milk","2":"99.16667"},{"1":"Grande","2":"85.71429"},{"1":"Tall","2":"63.42857"},{"1":"Short","2":"37.00000"},{"1":"Doppio","2":"10.00000"},{"1":"Solo","2":"5.00000"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[13]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmRyaW5rc19jb250ZW50DQpzZWxlY3QoZHJpbmtzX2NvbnRlbnQsICJCZXZlcmFnZV9jYXRlZ29yeSIsICJCZXZlcmFnZSIsICJCZXZlcmFnZV9wcmVwIiwgIkNhbG9yaWVzIikNCmBgYA0KYGBge3J9DQpkcmlua3NfY29udGVudA0KYWtjYWwgPC0gbXV0YXRlKGRyaW5rc19jb250ZW50LCBjYWxvcmllX2RpZmYgPSAxMzUgLSBDYWxvcmllcykNCm5hbWVzKGFrY2FsLCBjYWxvcmllX2RpZmYpDQpgYGANCg0KDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmRyaW5rc19jb250ZW50DQpzZWxlY3QoZHJpbmtzX2NvbnRlbnQsICJCZXZlcmFnZV9jYXRlZ29yeSIsICJCZXZlcmFnZSIsICJCZXZlcmFnZV9wcmVwIiwgIkNhbG9yaWVzIikNCmBgYA0KYGBge3J9DQpkcmlua3NfY29udGVudA0KbWluX2RyaW5rX2xpc3QgPC0gc2VsZWN0KGRyaW5rc19jb250ZW50LCAiQmV2ZXJhZ2VfY2F0ZWdvcnkiLCAiQmV2ZXJhZ2UiLCAiQmV2ZXJhZ2VfcHJlcCIsICJDYWxvcmllcyIpDQpha2NhbCA8LSBtdXRhdGUobWluX2RyaW5rX2xpc3QsIGNhbG9yaWVfZGlmZiA9IDEzNSAtIENhbG9yaWVzKQ0KYXJyYW5nZShha2NhbCwgY2Fsb3JpZV9kaWZmKQ0KYGBgDQoNCg0KYGBge3J9DQpiZV9ncm91cCA8LSBncm91cF9ieShha2NhbCwgQmV2ZXJhZ2VfY2F0ZWdvcnkpDQpiZV9ncm91cCA8LSBzdW1tYXJpc2UoYmVfZ3JvdXAsIG1lYW5fa2NhbCA9ICBtZWFuKENhbG9yaWVzKSkNCmFycmFuZ2UoYmVfZ3JvdXAsIGRlc2MobWVhbl9rY2FsKSkNCmBgYA0KYGBge3J9DQpiZV9QcmVwX2dyb3VwIDwtIGdyb3VwX2J5KGFrY2FsLCBCZXZlcmFnZV9wcmVwKQ0KYmVfUHJlcF9ncm91cCA8LSBzdW1tYXJpc2UoYmVfUHJlcF9ncm91cCwgbWVhbl9rY2FsID0gIG1lYW4oQ2Fsb3JpZXMpKQ0KYXJyYW5nZShiZV9QcmVwX2dyb3VwLCBkZXNjKG1lYW5fa2NhbCkpDQpgYGANCg0KDQo=</div>
 
 
 
