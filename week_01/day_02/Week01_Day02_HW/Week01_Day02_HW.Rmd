@@ -1,0 +1,17 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+drinks_content
+select(drinks_content, "Beverage_category", "Beverage", "Beverage_prep", "Calories")
+```
+```{r}
+drinks_content
+akcal <- mutate(drinks_content, calorie_diff = 135 - Calories)
+names(akcal, calorie_diff)
+```
+
+
+
