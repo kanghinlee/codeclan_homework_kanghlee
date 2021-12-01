@@ -1,0 +1,61 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(CodeClanData)
+```
+```{r}
+movies_hw <- read_csv("data/movies.csv")
+```
+
+
+```{r}
+head(movies_hw)
+```
+```{r}
+movies_selected <- select(movies_hw, original_title,runtime,budget)
+```
+```{r}
+movies_selected %>% 
+  filter(is.na(movies_selected))
+```
+
+```{r}
+  movies_runtime <-movies_selected %>% 
+  mutate(runtime = na_if(runtime, 0))
+arrange(movies_runtime,runtime) %>% 
+ filter(is.na(runtime))
+#summarise(count = sum(is.na(runtime)))
+
+#Q4 & 5
+movies_imputed <- movies_runtime %>% 
+#filter(is.na(runtime))
+      mutate(runtime = coalesce(runtime, 
+                                     median(runtime,na.rm = TRUE)))
+#6 
+movies_imputed_max_10 <- movies_imputed %>%
+  slice_max(runtime, n = 10)
+
+movies_imputed_min_10 <- movies_imputed %>%
+  slice_min(runtime, n = 10)
+
+#7
+movies_imputed %>%
+    #select(budget)%>%
+    mutate(budget = if_else(budget <100, 
+                                          15000000  , budget))
+#Ext Q1
+movie_budgets <- movies_imputed %>% 
+mutate(budget_type = case_when(
+                                budget < 12e6 ~ "Small budget",
+                                budget > 40e6 ~ "Big budget",
+                                TRUE ~ "Medium budget"
+)) %>% 
+group_by(budget_type)
+```
+
+
+
