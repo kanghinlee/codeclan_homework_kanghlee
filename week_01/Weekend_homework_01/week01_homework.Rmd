@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(devtools)
+
+book_main <- read_csv("data/books.csv")
+```
+```{r}
+str(book_main)
+#Overview of data
+glimpse(book_main)
+```
+
+```{r}
+#Dimension of the books.csv -> 11123x13
+dim(book_main)
+```
+
+
+```{r}
+#Names of the books.csv
+names(book_main)
+```
+
+```{r}
+#sanitise Check
+#No na found in the data but there are books with 0 page.
+#Drop all the books with 0 page.
+book_main %>%
+  summarise(across(.fns = ~ sum(is.na(.x))))
+  summarise(book_main, count_zero = sum(num_pages == 0))
+```
+```{r}
+#Drop all the book with book page = 0
+book_dropna <- book_main %>%
+  mutate(num_pages = na_if(num_pages, 0)) %>%
+  drop_na()
+```
+
+
+```{r}
+#Author vs Rating
+authors_avg_rating <- select(book_dropna, title, authors, average_rating) %>%
+  group_by(authors) %>%
+  summarise(books_count = n(),
+            avg_mean = mean(average_rating)) %>%
+  arrange(desc(avg_mean)) %>%
+  filter(books_count != 1)
+authors_avg_rating
+
+#For author with book count more than 1:
+slice_max(authors_avg_rating, avg_mean)
+#The highest rating is "NOT A BOOK"  with average rating of 4.81 per book
+slice_min(authors_avg_rating, avg_mean)
+#The lowest rating is "Frederick Lenz" with an average rating of 0.00 per book
+
+```
+
+```{r}
+#Publisher vs Rating
+publish_rating <- select(book_dropna, publisher, title, average_rating) %>% 
+  group_by(publisher) %>%
+  summarise(books_count = n(),
+            avg_median = median(average_rating)) %>%
+    arrange(desc(avg_median)) %>% 
+    filter(books_count != 1)
+publish_rating
+
+#For author with book count more than 1:
+slice_max(publish_rating, avg_median)
+#The highest rating is "東立 (unicode)"  with median rating of 4.565 per book
+slice_min(publish_rating, avg_median)
+#The lowest rating is "Frederick Lenz" with an median rating of 0.00 per book
+```
+
+```{r}
+# Plot Page Number vs Rating
+Opti_bookpage <- select(book_dropna, num_pages, average_rating)
+
+ggplot(Opti_bookpage, aes(num_pages,average_rating)) + geom_point()
+
+#if you want to write a good book with 3star +, keep the number of pages below 1500
+# More page number doesnt mean higher rating.
+```
+
