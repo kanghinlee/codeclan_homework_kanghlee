@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+card_m <- read_csv("data/CardBase.csv")
+cust_m <- read_csv("data/CustomerBase.csv")
+fraud_m <- read_csv("data/FraudBase.csv")
+trans_m <- read_csv("data/TransactionBase.csv")
+
+card_m
+cust_m
+fraud_m
+trans_m
+```
+
+```{r}
+#QUESTION 1.1 & 1.2 
+match_card_m <-left_join(card_m, cust_m, by= "Cust_ID")
+
+match_trans_m <- left_join(trans_m, fraud_m, by = 'Transaction_ID')
+
+match_card__full_m <- full_join(card_m, cust_m, by= "Cust_ID")
+
+match_trans_m
+match_card_m
+match_card__full_m
+```
+```{r}
+#QUESTION 2.1 & 2.2
+hat_observ <- read_csv("data/hat_observations.csv")
+hat_observ %>%
+  separate(observation,
+           into = c('hat_colour', 'hat_type'),
+           sep = '\\,') %>%
+  unite(date, c("day", "month", "year"), sep = "/") %>%
+  filter(hat_type == "beret") %>%
+  arrange(desc(observation_count)) %>%
+  slice_head()
+
+```
+
+
