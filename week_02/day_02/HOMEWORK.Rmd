@@ -1,0 +1,78 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(rtweet)
+```
+
+```{r}
+cc_tweets <- read_csv("data/code_clan_tweets.csv")
+cc_info <- read_csv("data/code_clan_info.csv")
+
+names(cc_tweets)
+names(cc_info)
+```
+
+```{r}
+cc_tweets_noquote <- filter(cc_tweets, is_quote = TRUE)
+cc_tweets_noquote %>% 
+summarise (count = sum(na.rm = FALSE, favorite_count))
+
+```
+
+```{r}
+cc_retweet_count <- cc_tweets_noquote %>% 
+  group_by(source) %>% 
+  summarise(mean_retweet = mean(retweet_count))
+cc_retweet_count
+```
+
+Question 4.
+- Assume that any tweets without a listed media type are of type “text”.
+- Count the total number of likes (i.e. total of favorite_count), 
+- split by media type, 
+- arrange them from most likes to least. 
+
+```{r}
+cc_tweet_total_like <- cc_tweets %>% 
+  mutate(media_type = coalesce(media_type, "text")) %>% 
+  group_by(media_type) %>% 
+  summarise(total_like = sum(na.rm = FALSE, favorite_count)) %>% 
+arrange(desc(total_like))
+cc_tweet_total_like
+```
+
+Question 5.
+Find the mean number of characters that a CodeClan tweet contains.
+You can either find a way to count the text in the text variable, 
+or use the variable display_text_width which contains a count. 
+
+Checking both would be a good idea if possible to see if they match (but it’s not essential).
+```{r}
+cc_tweets_textcount <- cc_tweets %>% 
+summarise(mean_text_count = mean(na.rm = FALSE, display_text_width))
+cc_tweets_textcount
+```
+Question 6.
+- The code_clan_info.csv data file contains status_url along with other info.
+- Load this in, and join it to the code_clan_tweets tibble, so that you have a status_url for each tweet.
+- Decide which variable to join the tibbles on.
+
+```{r}
+cc_join_tweets <- cc_tweets %>% 
+left_join(cc_join_tweets, cc_info,by ="tweet_id")
+
+names(cc_join_tweets)
+```
+
+```{r}
+code_hashtags <- cc_join_tweets
+
+code_hashtags %>% 
+select(tweet_id, hashtags.y) %>% 
+mutate(hashtags.y = str_to_lower(hashtags.y))
+```
+
