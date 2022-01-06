@@ -1,0 +1,53 @@
+---
+title: "Meteors Continued - PDA"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+
+# MVP
+
+This is a mini homework for people doing the PDA. You are going to continue working on your week 2 weekend homework.
+
+We have a table called `meteorite_class` in the database `meteorites_pool`. We want you to add the data in this table into your clean data. When you've added the extra information into the table then write it to a CSV in the clean data folder.
+
+Here are the connection details for the `meteorites_pool` database:
+
+| Connection setting | Value |
+|---|---|
+| Host | db-postgresql-lon1-20135-do-user-7581050-0.b.db.ondigitalocean.com |
+| Port | 25061 |
+| Database | meteorites_pool |
+| Username | meteorites_user |
+| Password | j4vdrkcilnflmcck |
+
+# Things to think about
+
+1. Make sure you are using code when reading from a database into R.
+2. You should continue to commit your code regularly.
+3. Be careful **not** to commit your database credentials. 
+4. Think about how you want to join this data.
+
+
+# PDA-specific Requirements
+
+## Outcomes covered
+
+Both of these outcomes are covered by you completing the task above, you can submit the same evidence for both outcomes (only one submission).
+
+From Programming for Data (J4YB 35):
+
+*3. Write functions and programs to perform data analysis*
+
+- **3.2 Writing function/program to process data from a database**
+
+From Working with Data (J4Y6 35):
+
+*4. Analyse data to provide business intelligence*
+
+- **3.2 Data structures including tables and databases **

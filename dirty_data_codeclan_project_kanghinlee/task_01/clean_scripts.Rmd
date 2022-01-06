@@ -1,0 +1,102 @@
+---
+title: "Task01_Decathlon"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+```{r}
+deca_raw <- read_rds("raw_data/decathlon.rds")
+deca_raw
+```
+
+```{r}
+# sanitize column names using janitor
+deca_main <- janitor::clean_names(deca_raw)
+
+# separate row name and reassign as column
+athlete_name <- str_to_title(rownames(deca_main))
+rownames(deca_main) <- NULL
+deca_main <- cbind(athlete_name, deca_main)
+
+# convert competition name into character variable
+deca_main <- mutate(deca_main, competition = as.character(competition))
+
+# reorder rank adjacent to competition name
+deca_main <- deca_main[,c(1:11, 13, 12, 14)]
+
+```
+
+```{r}
+# sanitize check for NA(s) for each column in the main dataframe
+colSums(is.na(deca_main))
+```
+
+
+```{r}
+names(deca_main)
+as_tibble(deca_main)
+```
+
+## Analysis Question
+
+## Question 1 - Longest long_jump seen
+```{r}
+deca_main %>% 
+  select(athlete_name, long_jump) %>%
+  slice_max(long_jump)
+```
+## Question 2 - Average 100m time in each competition
+```{r}
+deca_main %>% 
+  select(x100m, competition) %>%
+  group_by(competition) %>% 
+  summarise_at(vars(x100m), list(avg_100m_time = mean))
+```
+## Question 3 - Who had the highest total points across both competitions?
+```{r}
+# gather points for Decastar.
+deca_pts <- filter(deca_main, competition == "Decastar")
+deca_pts <- select(deca_pts, athlete_name, points)
+colnames(deca_pts)[2] <- "deca_points"
+
+# gather points for olympicG
+olym_pts <- filter(deca_main, competition == "OlympicG")
+olym_pts <- select(olym_pts, athlete_name, points)
+colnames(olym_pts)[2] <- "olym_points"
+
+# joing both dataset together
+total_pts <- inner_join(deca_pts, olym_pts)
+total_pts <- mutate(total_pts, deca_points = as.numeric(deca_points))
+total_pts <- mutate(total_pts, olym_points = as.numeric(olym_points))
+
+# output the competitor with the highest point in both competitions.
+total_pts %>%
+      mutate(total_points = deca_points + olym_points) %>% 
+    slice_max(total_points)
+```
+## Question 4 - What was the shot-put scores for the top three competitors in each competition?
+```{r}
+# select and slice to display the top 3 competitors for shot-put.
+top_shot_put_scores <- select(deca_main, athlete_name, shot_put, competition) %>% 
+  group_by(competition) %>% 
+  slice_max(shot_put, n = 3)
+top_shot_put_scores
+```
+
+## Question 5 - What was the average points for competitors:
+## who ran the 400m in less than 50 seconds vs. 
+## those who ran 400m in more than 50 seconds?
+
+```{r}
+# gather dataset for x400m, separate into groups of x400 >50 and <=50 seconds then average the output.
+ran_400m <- select(deca_main, x400m, points) %>% 
+  mutate(above_50sec = x400m > 50) %>% 
+  group_by(above_50sec) %>%
+  summarise_at(vars(points), list(avg_points = mean))
+ran_400m
+```
+

@@ -1,0 +1,48 @@
+---
+title: "Read Me File Task04 - Halloween Candy"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+The goal of task 04 is to utilise the knowledge of R to clean and wrangle dataset `boing-boing-candy-2015`, `boing-boing-candy-2016`, `boing-boing-candy-2017` to answer the given questions.
+
+## Documentations
+The cleaning script is coded in `cleaning_script.nb`
+
+Analysis script is coded in `analysis_script.nb`
+
+## Packages
+`library(tidyverse)`
+
+`library(here)`
+
+`library(readxl)`
+
+`library(stringr)`
+
+`library(naniar)`
+
+`library(janitor)`
+
+## Questions
+
+Q1. What is the total number of candy ratings given across the three years. (number of candy ratings, not number of raters. Don’t count missing values)
+
+Q2. What was the average age of people who are going out trick or treating and the average age of people not going trick or treating?
+
+Q3. For each of joy, despair and meh, which candy bar received the most of these ratings?
+
+Q4. How many people rated Starburst as despair?
+
+Q5. For the next three questions, count despair as -1, joy as +1 and meh as 0.
+
+Q6. What was the most popular candy bar by this rating system for each gender in the dataset?
+
+Q7. What was the most popular candy bar in each year?
+
+Q8. What was the most popular candy bar by this rating for people in US, Canada, UK and all other countries?
