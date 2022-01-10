@@ -15,7 +15,7 @@ qb_monsal <- clean_names(qb_monthly_sales)
 qb_compe <- clean_names(qb_competitors)
 qb_devdat <- clean_names(qb_device_data)
 ```
-
+# Part 01
 ## Question 1 - Take the data in the dataset qb_revenue_breakdown and make a stacked bar chart showing the sources of revenue across the two years in the dataset.
 ```{r}
 ggplot(qb_rev) +
@@ -103,7 +103,16 @@ devdat_plot
 
 
 
-
+# Part 02
+```{r}
+ggplot(qb_rev) +
+  geom_col(aes(year, revenue,
+               fill = revenue)) +
+  labs(title = "Revenue Breakdown 2018 - 2019",
+       x = "Year",
+       y = "Cost ($)") +
+  scale_y_continuous(labels = scales::comma)+
+```
 
 
 
