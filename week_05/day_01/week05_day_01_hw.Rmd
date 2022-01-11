@@ -105,13 +105,23 @@ devdat_plot
 
 # Part 02
 ```{r}
+col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")
+col_grid <- rgb(235, 235, 235, 100, maxColorValue = 255)
+
 ggplot(qb_rev) +
   geom_col(aes(year, revenue,
                fill = revenue)) +
   labs(title = "Revenue Breakdown 2018 - 2019",
        x = "Year",
-       y = "Cost ($)") +
-  scale_y_continuous(labels = scales::comma)+
+       y = "Cost ($)")+
+    scale_fill_manual(values  = col_scheme)+
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(color = col_grid),
+        text = element_text(size = 12)
+        )
+
+
+
 ```
 
 
