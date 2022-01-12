@@ -78,12 +78,6 @@ ques_05
 ```
 # Question 6 - What proportion of students report back pain?
 ```{r}
-# back_pain_1 <- as.numeric(sum(main_backpack$back_problems == 1))
-# back_pain_0 <- as.numeric(sum(main_backpack$back_problems == 0))
-# back_pain_total = as.numeric(nrow(main_backpack))
-# back_pain_ratio = back_pain_1 / back_pain_0
-# back_pain_ratio
-
 
 ques_06 <- main_backpack %>% 
   group_by(back_problems) %>% 
@@ -127,7 +121,7 @@ ques_07 <- ggplot(ques_07,
     geom_col()+
       facet_grid(~sex,)+
   labs(
-    x = "Back Pain",
+    x = "Back Pain ( Per gender)",
     y = "Count",
     title = "Back Problem"
   )+
