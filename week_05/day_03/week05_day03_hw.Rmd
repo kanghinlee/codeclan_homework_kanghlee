@@ -1,0 +1,23 @@
+---
+title: "week05_day03_hw"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+```{r}
+backpack <- CodeClanData::backpack
+olympics_medals <- CodeClanData::olympics_overall_medals
+```
+
+```{r}
+olympics_medals %>%
+            filter(season == "Summer") %>%
+            group_by(team) %>% 
+            summarise(count = sum(count)) %>% 
+  arrange(-count)
+```
+
+
+
