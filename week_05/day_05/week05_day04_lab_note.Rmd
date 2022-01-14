@@ -1,0 +1,95 @@
+---
+title: "week05_day04_lab_note"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+student_big <- CodeClanData::students_big
+```
+
+```{r}
+student_big %>% 
+  filter(ageyears == 13) %>% 
+ggplot()+
+  geom_histogram(aes(x = height))
+
+student_big %>% 
+  filter(ageyears == 13) %>% 
+ggplot()+
+  geom_histogram(aes(x = arm_span))
+```
+
+```{r}
+task_02_choices = c(Blue = "#3891A6", Yellow = "#FDE74C", Red = "#E3655B")
+
+student_big %>% 
+  ggplot(aes(x = reaction_time , y = score_in_memory_game))+
+  geom_point(shape=15, colour="steel blue", alpha = 1)
+```
+
+```{r}
+task_03 <- student_big %>%
+  select(gender, handed) %>% 
+  group_by(gender, handed) %>% 
+  summarise(count = table(handed)) %>% 
+
+ggplot(aes(x = handed, y = count, fill = gender))+
+  geom_col(stat="identity", position = "dodge")
+task_03
+```
+
+```{r}
+task_03 <- student_big %>%
+  select(gender, handed) %>% 
+  group_by(gender, handed) %>% 
+  summarise(count = table(handed)) %>% 
+
+ggplot(aes(x = handed, y = count, fill = gender))+
+  geom_col(stat="identity", position = "dodge")+
+  coord_flip()
+
+task_03
+```
+
+```{r}
+task_03 <- student_big %>%
+  select(gender, handed) %>% 
+  group_by(gender, handed) %>% 
+  summarise(count = table(handed)) %>% 
+
+ggplot(aes(x = handed, y = count, group = gender, fill = gender))+
+  geom_bar(stat = "identity")
+task_03
+
+```
+```{r}
+task_04_internet <- student_big %>% 
+  filter(gender == "M"  & region == "Home Counties") %>% 
+  ggplot(aes(x = importance_internet_access))+
+  geom_histogram()
+
+task_04_internet
+```
+
+
+```{r}
+task_04_pollution <- student_big %>% 
+    select(region, gender, importance_internet_access, importance_reducing_pollution)
+    filter(gender == "M"  & region == "Home Counties") %>% 
+    ggplot(aes(x = importance_reducing_pollution))+
+  geom_histogram()
+task_04_pollution
+```
+
+```{r}
+task_04_table <- student_big %>% 
+  select(region, gender, importance_internet_access, importance_reducing_pollution) %>% 
+    filter(gender == "M"  & region == "Home Counties")
+
+task_04_table
+```
+
