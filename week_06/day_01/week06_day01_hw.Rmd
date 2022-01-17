@@ -1,0 +1,146 @@
+---
+title: "week06_day01_hw"
+output: html_notebook
+---
+
+```{r}
+library(prob)
+library(gtools)
+library(tidyverse)
+
+```
+
+```{r}
+titanic <- read_csv("note/data/titanic.csv") %>% 
+  mutate( age = as.integer(age))
+```
+```{r}
+# String Replace all with either "Crew" or "Passenger"
+titanic_main <- titanic %>% 
+  mutate(class = str_replace_all(class, "[a-zA-z][a-zA-z].+\ .+", "crew")) %>% 
+  mutate(class = str_replace_all(class, "[0-9]\\w+","passenger"))
+```
+```{r}
+# P(crew)
+prob_crew <- titanic_main %>% 
+  filter(class == "crew") %>% 
+  summarise(n() / nrow(titanic_main)) 
+# P(dead N crew)
+prob_crew_n_dead <- titanic_main %>% 
+  filter(class == "crew" & survived == "no") %>% 
+  summarise(n() / nrow(titanic_main))
+
+# P(pass)
+prob_passenger = 1- prob_crew
+# P(dead N passenger)
+prob_passenger_n_dead <- titanic_main %>% 
+  filter(class == "passenger" & survived == "no") %>% 
+  summarise(n() / nrow(titanic_main)) 
+```
+
+```{r}
+# P(dead | crew)
+prob_dead_crew = prob_crew_n_dead / prob_crew
+prob_dead_crew <- rename(prob_dead_crew, "crew_death_rate" = "n()/nrow(titanic_main)")
+
+# P(dead | passenger)
+prob_dead_passenger = prob_passenger_n_dead / prob_passenger
+prob_dead_passenger <- rename(prob_dead_passenger, "passenger_death_rate" = "n()/nrow(titanic_main)")
+
+prob_dead = cbind(prob_dead_crew, prob_dead_passenger)
+prob_dead
+```
+## Question 1 - If I roll a six-sided dice once, what is the probability of getting a number less than 5?
+```{r}
+roll_one <- rolldie(1,6)
+
+question_01 <- roll_one %>% 
+  filter(X1 < 5) %>% 
+  summarise(prob_less_than_5 = n() / nrow(roll_one))
+question_01
+```
+## Question 2 - How many outcomes are there in the sample space of an experiment in which we toss three dice?
+```{r}
+roll_three <- rolldie(3)
+
+question_02 <- roll_three %>% 
+  summarise(sample_space = n())
+question_02
+```
+## Question 3
+```{r}
+roll_four <- rolldie(4)
+
+question_03 <- roll_four %>% 
+  mutate(die_sum = rowSums(across(where(is.numeric)))) %>% 
+  filter(die_sum >= 4 & die_sum <=6) %>% 
+  summarise(prob_456 = n()/ nrow(roll_four))
+question_03
+```
+## Question 4
+```{r}
+five_person <- c("a","b","c","d","e")
+
+
+chair_n_person <- as_tibble(permutations(n=5, r = 5, v = five_person, repeats.allowed = FALSE))
+chair_n_person <- chair_n_person%>% 
+  rename(chair_01 = V1,
+         chair_02 = V2,
+         chair_03 = V3,
+         chair_04 = V4,
+         chair_05 = V5) %>% 
+  unite("chair_order", chair_01:chair_05, sep = "", remove = FALSE) %>% 
+  filter(chair_order == "abcde") %>% 
+  summarise(prob_in_order = n()/ nrow(chair_n_person))
+
+chair_n_person
+```
+## Question 5
+```{r}
+roll_six <- rolldie(6)
+
+
+prob_6_to_1 <- roll_six %>% 
+    unite("die_order", X1:X6, sep = "", remove = FALSE)
+
+prob_6_to_1 <- prob_6_to_1 %>% 
+  filter(die_order == "654321") %>% 
+  summarise(prob_in_order = n()/nrow(roll_six))
+
+prob_diff_num <- as_tibble(permutations(n=6, r = 6, v = c(1:6), repeats.allowed = FALSE))
+
+prob_diff <- nrow(prob_diff_num) / nrow(roll_six)
+
+
+question_05 <- cbind(prob_6_to_1, prob_diff)
+question_05
+```
+## Question 06
+```{r}
+card_deck <- cards(1)
+
+card_deck <- card_deck %>% 
+  mutate(colour = case_when( 
+                  suit == "Heart" ~ "Red",
+                  suit == "Diamond" ~ "Red",
+                  suit == "Club" ~ "Black",
+                  suit == "Spade" ~ "Black",
+                  TRUE ~ "other"))
+
+prob_black_n_spades <- card_deck %>% 
+  filter(suit == "Spade", colour == "Black") %>% 
+  summarise(n())
+
+prob_black <- card_deck %>% 
+  filter(colour == "Black") %>% 
+  summarise(n())
+
+
+question_07 = prob_black_n_spades/prob_black
+question_07 <- rename(question_07, "prob_spades_in_black" = "n()")
+
+question_07
+```
+
+
+
