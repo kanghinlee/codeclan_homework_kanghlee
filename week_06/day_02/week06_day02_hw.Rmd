@@ -1,0 +1,82 @@
+---
+title: "week06_day02_hw"
+output: html_notebook
+---
+
+```{r}
+library(prob)
+library(gtools)
+library(tidyverse)
+library(janitor)
+```
+
+# Question 01
+```{r}
+main_df <- clean_names(read_csv("note/data/20190928-items.csv"))
+```
+# Question 02
+```{r}
+quest_02 <- main_df %>% 
+  group_by(brand) %>% 
+  summarise(phone_count = n()) %>% 
+  arrange(desc(phone_count)) %>% 
+  top_n(n = 1)
+quest_02
+```
+# Question 03
+```{r}
+quest_03 <- main_df %>% 
+  filter(brand == "Samsung")
+
+
+
+
+quest_03_mean_sd_n <- quest_03 %>% 
+  summarise(
+    num = n(),
+    mean = mean(rating),
+    sd = sd(rating))
+
+
+quest_03_plot <- quest_03 %>% 
+  ggplot(aes( x = rating))+
+  geom_histogram(aes(y = ..density..), col = "white", bins = 40) +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = quest_03_mean_sd_n$mean,
+                sd = quest_03_mean_sd_n$sd
+  ),
+col = "red")
+  
+quest_03_plot
+# Plot is mostly true that the highest density is surrounded at around 3.4 - 4 range.
+# Both plots show shape that is Askew to the left
+```
+# Question 04
+```{r}
+samsung_ratings <- quest_03 %>%
+  select(rating)
+samsung_stats <- quest_03_mean_sd_n
+
+samsung_ratings %>%
+  filter(rating >= samsung_stats$mean - samsung_stats$sd) %>%
+  filter(rating <= samsung_stats$mean + samsung_stats$sd) %>%
+  summarise(prop_within_1sd = n() / nrow(samsung_ratings))
+
+quest_04 <- tibble(
+  x =  samsung_ratings$rating,
+  f1_x = dnorm(x = x, mean = samsung_stats$mean, sd = 1),
+  f2_x = dnorm(x = x, mean = samsung_stats$mean, sd = 2),
+  f3_x = dnorm(x = x, mean = samsung_stats$mean, sd = 3)) %>%
+  ggplot() +
+  geom_line(aes(x = x, y = f1_x), col = "red") +
+  geom_line(aes(x = x, y = f2_x), col = "darkgoldenrod1") +
+  geom_line(aes(x = x, y = f3_x), col = "green")
+
+quest_04
+```
+
+
+
+
+

@@ -11,16 +11,16 @@ library(tidyverse)
 ```
 
 ```{r}
-titanic <- read_csv("note/data/titanic.csv") %>% 
-  mutate( age = as.integer(age))
+titanic <- read_csv("note/data/titanic.csv")
+
 ```
 ```{r}
 # String Replace all with either "Crew" or "Passenger"
 titanic_main <- titanic %>% 
+  mutate( age = as.integer(age)) %>% 
   mutate(class = str_replace_all(class, "[a-zA-z][a-zA-z].+\ .+", "crew")) %>% 
   mutate(class = str_replace_all(class, "[0-9]\\w+","passenger"))
-```
-```{r}
+
 # P(crew)
 prob_crew <- titanic_main %>% 
   filter(class == "crew") %>% 
@@ -50,6 +50,17 @@ prob_dead_passenger <- rename(prob_dead_passenger, "passenger_death_rate" = "n()
 prob_dead = cbind(prob_dead_crew, prob_dead_passenger)
 prob_dead
 ```
+
+```{r}
+# HW answer
+# titanic %>%
+#   tabyl(crew, survived) %>%
+#   adorn_totals(where = c("row", "col")) %>%
+#   adorn_percentages(denominator = "all") %>%
+#   adorn_rounding(digits = 4) %>%
+#   adorn_title()
+```
+
 ## Question 1 - If I roll a six-sided dice once, what is the probability of getting a number less than 5?
 ```{r}
 roll_one <- rolldie(1,6)
@@ -73,8 +84,14 @@ roll_four <- rolldie(4)
 
 question_03 <- roll_four %>% 
   mutate(die_sum = rowSums(across(where(is.numeric)))) %>% 
-  filter(die_sum >= 4 & die_sum <=6) %>% 
+
+  filter(die_sum >= 5 & die_sum <=7) %>% 
   summarise(prob_456 = n()/ nrow(roll_four))
+
+    # HW Answer mutate(total = rowSums(.))
+  # total_between_5_7 <- four_rolls %>%
+  # filter(total %in% c(5, 6, 7))
+
 question_03
 ```
 ## Question 4
@@ -83,7 +100,7 @@ five_person <- c("a","b","c","d","e")
 
 
 chair_n_person <- as_tibble(permutations(n=5, r = 5, v = five_person, repeats.allowed = FALSE))
-chair_n_person <- chair_n_person%>% 
+chair_n_person <- chair_n_person %>% 
   rename(chair_01 = V1,
          chair_02 = V2,
          chair_03 = V3,
@@ -114,6 +131,14 @@ prob_diff <- nrow(prob_diff_num) / nrow(roll_six)
 
 question_05 <- cbind(prob_6_to_1, prob_diff)
 question_05
+
+# HW Answer
+# contains_654321 <- six_rolls %>%
+#   filter(isin(., c(6, 5, 4, 3, 2, 1), ordered = FALSE))
+# 
+# prob <- nrow(contains_654321) / nrow(six_rolls)
+# prob
+
 ```
 ## Question 06
 ```{r}
@@ -136,10 +161,10 @@ prob_black <- card_deck %>%
   summarise(n())
 
 
-question_07 = prob_black_n_spades/prob_black
-question_07 <- rename(question_07, "prob_spades_in_black" = "n()")
+question_06 = prob_black_n_spades/prob_black
+question_06 <- rename(question_07, "prob_spades_in_black" = "n()")
 
-question_07
+question_06
 ```
 
 
