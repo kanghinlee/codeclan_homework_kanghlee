@@ -57,11 +57,12 @@ quest_03_plot
 samsung_ratings <- quest_03 %>%
   select(rating)
 samsung_stats <- quest_03_mean_sd_n
-
-samsung_ratings %>%
-  filter(rating >= samsung_stats$mean - samsung_stats$sd) %>%
-  filter(rating <= samsung_stats$mean + samsung_stats$sd) %>%
-  summarise(prop_within_1sd = n() / nrow(samsung_ratings))
+# 
+# 
+# samsung_ratings %>%
+#   filter(rating >= samsung_stats$mean - samsung_stats$sd) %>%
+#   filter(rating <= samsung_stats$mean + samsung_stats$sd) %>%
+#   summarise(prop_within_1sd = n() / nrow(samsung_ratings))
 
 quest_04 <- tibble(
   x =  samsung_ratings$rating,
