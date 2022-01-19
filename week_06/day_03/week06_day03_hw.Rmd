@@ -1,0 +1,73 @@
+---
+title: "week06_day03_hw"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(infer)
+library(fastGraph)
+```
+# Question 01 - Load in the data
+```{r}
+ames_main <- clean_names( read_csv("note/data/ames.csv"))
+```
+# Question 02
+# Answer 02 - Plot has very positive skewness, shifted towards the left.
+```{r}
+lot_area_main <- ames_main %>% 
+  select(lot_area)
+
+ques_02 <- lot_area_main %>% 
+  summarise(num = n(),
+            mean = mean(lot_area),
+            sd = sd(lot_area))
+
+ames_main %>% 
+  ggplot()+
+  aes(x = lot_area)+
+  geom_histogram(aes(y = ..density.., bin = 10), col = 'white')+
+  stat_function(fun = dnorm, 
+                args = list(mean = ques_02$mean,
+                sd = ques_02$sd), colour = 'red')
+```
+# Question 03
+```{r}
+ques_03_bs_samples <- lot_area_main %>% 
+  specify(response = lot_area) %>% 
+  generate(reps = 5000, type = "bootstrap") %>% 
+  calculate(stat = "mean")
+
+ques_03_bs_95 <- ques_03_bs_samples %>% 
+  get_ci(level = 0.95,
+         type = "percentile")
+
+ques_03_bs_samples %>% 
+  visualise(bins = 30)+
+  shade_ci(endpoints = ques_03_bs_95)
+```
+# Question 05
+# Answer 05 - BS_99 is boarder as the confidence range has expand from 95% of the bs range to 99%.
+```{r}
+ques_04_bs_99 <- ques_03_bs_samples %>% 
+  get_ci(level = 0.99,
+         type = "percentile")
+
+ques_03_bs_samples %>% 
+  visualise(bins = 30)+
+  shade_ci(endpoints = ques_03_bs_95, fill = "blue", alpha = 0.75)+
+  shade_ci(endpoints = ques_04_bs_99, fill = "red", alpha = 0.2)
+  
+```
+# Question 06 - Point Estimation
+
+```{r}
+quest_06_pt_est <- ques_03_bs_samples %>%
+  ungroup() %>%
+  summarise(
+    mean_lot_area = mean(stat)
+  ) 
+quest_06_pt_est
+```
+
