@@ -1,0 +1,59 @@
+---
+title: "wk06_day05_hw"
+output:
+  html_document:
+    df_print: paged
+---
+```{r}
+library(tidyverse)
+library(janitor)
+library(infer)
+
+```
+
+## Task 01 - Question 02
+
+```{r}
+data(msleep) %>% 
+  summarise(mean_sleep_total = mean(as.numeric(sleep_total)))
+```
+
+## Task 02 - Question 1
+Test Type:  One Sample Proportion...
+Method Type: "Draw" or "Permute"
+Direction: "Less"
+Setup for Hypothesis Test:
+$$H_{0}:\mu_{popularity} < 0.4$$
+$$H_{a}: \Delta\mu \geq 0.4$$
+
+
+## Task 02 - Question 2
+Test Type:  Two Samples Pairing Proportion...
+Method Type: permute
+Setup for Hypothesis Test:
+Direction: "Both"
+$$H_{0}:\mu_{A_prop} - \mu_{B_prop} = 0$$
+$$H_{a}: \Delta\mu \neq 0$$
+## Task 02 - Question 3
+Test Type:  One Sample Mean...
+Method Type: bootstrap
+Direction: "Both"
+Setup for Hypothesis Test:
+$$H_{0}:\mu_{part width} = 145$$
+$$H_{a}: \mu_{part width} \neq 145$$
+
+
+## Task 03 - Question 1
+CI = 0.05 (5%)
+p-value = 0.07(7%)
+$$H_{0} = TRUE$$, Accept `H_{0}` as the P value is within the 5% CI, that 40% of the population know the coffee shop.
+
+## Task 03 - Question 2
+CI = 0.01 (1%)
+p-value = 0.006(0.6%)
+$$H_{0} = FALSE$$, Reject `H_{0}` as the P value is outwith the 1% CI.
+
+## Task 03 - Question 3
+CI = 0.05 (5%)
+p-value = 0.55(55%)
+$$H_{0} = TRUE$$, Accept `H_{0}`, as the p value is within the 5% CI, the process is indeed difted from its original dimension as the part is significaly away from 145mm.
