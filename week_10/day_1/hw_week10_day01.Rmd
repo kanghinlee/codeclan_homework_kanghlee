@@ -1,0 +1,63 @@
+---
+title: "Week10 Day01 Homework"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(broom)
+library(modelr)
+```
+
+```{r}
+raw_proj_mang <- read_csv("data/project_management.csv") %>% 
+  clean_names()
+```
+independent = x =est_len
+dependent = y = act_len
+
+# Correlation Coefficient
+
+Estimated_length and actual length generates a correlation coefficient of 0.805...meaning it has a very strong strength of correlation.
+Plot shows evidence that the estimated_length and actual_length has a linear relationship that is suitable for correlation analysis.
+It has a trend with random spread of the data points, where as est_len, the act_len also increases, with an exception of an outlier at est_len ~ 20.0
+
+
+```{r}
+# Plot Est_len vs Act_len
+plot_proj_mang <- raw_proj_mang %>% 
+  ggplot()+
+  aes(x = estimated_length, y = actual_length)+
+  geom_point()
+
+# Correlation coefficient
+correlation_coefficient <- raw_proj_mang %>% 
+  summarise(cor_coe = cor(actual_length, estimated_length))
+
+
+plot_proj_mang
+correlation_coefficient
+```
+
+```{r}
+model <- lm(formula = actual_length ~ estimated_length, data = raw_proj_mang)
+summary(model)
+```
+```{r}
+glance_output <- clean_names(glance(model))
+glance_output$r_squared
+
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
