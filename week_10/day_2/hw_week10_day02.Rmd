@@ -1,0 +1,127 @@
+---
+title: "Week10 Day02 Homework"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(fastDummies)
+library(mosaicData)
+library(mosaic)
+library(janitor)
+library(GGally)
+library(ggfortify)
+```
+## Task 01
+```{r}
+main_dia <- read_csv("data/diamonds.csv") %>% 
+  clean_names()
+```
+
+## Task 02
+```{r}
+main_dia %>% 
+  select(carat, x, y, z) %>% 
+  ggpairs()
+```
+
+## Task 03
+```{r}
+dia_03 <- main_dia %>% 
+  select(-c("x", "y", "z", "x1")) %>% 
+  relocate(price, .before = 1)
+
+dia_03 %>% 
+  ggpairs()
+```
+
+
+
+```{r}
+main_dia %>% 
+  select(price, carat, clarity, color) %>% 
+  relocate(price, .before = 1) %>% 
+  ggpairs()
+
+```
+## Task 04 i
+
+Price has a 
+```{r}
+main_dia %>% 
+  select(price, carat) %>% 
+  relocate(price, .before = 1) %>% 
+  ggpairs()
+
+
+main_dia %>% 
+  select(price, color) %>% 
+  relocate(price, .before = 1) %>% 
+  ggpairs()
+
+```
+## Task 04 ii
+```{r}
+model <- lm(price~carat, dia_03)
+summary(model)
+
+dia_03 %>% 
+  ggplot(aes(carat, price))+
+  geom_point()+
+  geom_smooth(method = 'lm', se = FALSE)
+
+dia_03 %>% 
+  ggplot(aes(color, price))+
+  geom_boxplot()+
+  geom_smooth(method = 'lm', se = FALSE)
+
+```
+## Task 05
+
+- Cut, 4 rows
+- Clarity, 7 rows
+- Colour, 6 rows
+```{r}
+dia_05 <- dia_03 %>% 
+  select(price, cut, clarity, color)
+dia_05 %>% 
+distinct(cut)
+dia_05 %>% 
+distinct(dia_05$clarity)
+dia_05 %>% 
+distinct(dia_05$color)
+```
+# Task 06
+Regression Diagnostics
+
+Overall, the regression diagnostics looks fine. 
+RvF plot shows the residuals are well randomized.
+NQ-Q plot shows the middle part of the standard residuals are laying on the theoretical line with both ends curve-off, indicating the data contains more extreme values than theory calculated.
+SL plot's point shows that the majority of the points are laying under 20'000 fitted values, there are fewer points laying above 20'000 and are concentrate on the top half of the plane.
+RvL plot shows that the outliner (i.e. 2741) are retained within the crook's distance, meaning it has no influential impact towards the regression.
+
+With the suitable diagnostics plots, the P-value of 2e-16 showing that the carat is statistically significant as the p-value are below 95%CI.
+The $r^2$ value of 0.8493 meaning it has 84.9% of the data can be explained by variation in price.
+
+```{r}
+model = lm(price ~ carat,dia_03)
+summary(model)
+autoplot(model)
+```
+
+
+
+# Task 07
+
+- The diagnostic plots are showing the values are well randomised, similar to the previous model.
+
+- All the color's p-values are staying within 95%CI meaning there is no statistically different and the $r^2$ value increases from 0.849 to 0.864.
+
+
+```{r}
+model2 = lm(price ~ carat + color, data = dia_03)
+
+summary(model2)
+autoplot(model2)
+```
+
