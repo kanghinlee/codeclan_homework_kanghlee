@@ -1,0 +1,80 @@
+---
+title: "Week10 Day03 Homework"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(fastDummies)
+library(mosaicData)
+library(mosaic)
+library(janitor)
+library(GGally)
+library(ggfortify)
+```
+
+### Task 01
+```{r}
+raw_house <- read_csv("data/kc_house_data.csv")
+```
+
+```{r}
+#NA Checks
+raw_house %>% 
+  summarise(across(.cols = everything(),.fns = ~sum(is.na(.))))
+```
+### Task 02
+```{r}
+house <- raw_house %>% 
+  select(-c("date", "id", "sqft_living15", "sqft_lot15", "zipcode","lat","long")) %>% 
+  mutate(waterfront = as.factor(waterfront),
+         condition = as.factor(condition),
+         grade = as.factor(grade),
+         view = as.factor(view)) %>% 
+mutate(yr_renovated = case_when(
+                      yr_renovated == 0 ~ 0,
+                      yr_renovated != 0 ~ 1))
+
+```
+
+### Task 03
+```{r}
+alias(price ~ ., house)
+# Dropping basement & above as they are related to sqft_living
+house <- house %>% 
+  select(-c("sqft_basement", "sqft_above"))
+
+```
+
+```{r}
+houses_tidy_numeric <- house %>%
+  select_if(is.numeric)
+
+houses_tidy_nonnumeric <- house %>%
+  select_if(function(x) !is.numeric(x))
+
+houses_tidy_nonnumeric$price <- house$price
+
+ggpairs(houses_tidy_numeric)
+ggpairs(houses_tidy_nonnumeric)
+```
+include
+sqft_living 0.702***
+bathrooms 0.525***
+floors 0.257***
+
+grade - good relation
+waterfront
+
+
+
+
+Out of all the variables, `sqft_living` has the highest correlation coefficient, therefore we will be using `sqft_living` as independent variable to analysis `price`.
+
+```{r}
+moda <- lm(price ~ bathrooms, house)
+autoplot(moda)
+summary(moda)
+
+```
+
