@@ -1,0 +1,140 @@
+---
+title: "Week10 Day05 Homework 1"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(modelr)
+library(ggfortify)
+library(GGally)
+library(leaps)
+```
+```{r}
+raw_avocado <- read_csv("1_weekend_homework_part1/data/avocado.csv")
+```
+
+```{r}
+# Find nas in data
+raw_avocado %>% 
+  summarise(across(.cols = everything(),.fns = ~sum(is.na(.))))
+```
+
+
+```{r}
+main_avocado <- raw_avocado %>% 
+  clean_names() %>% 
+  select(-1) %>% 
+  rename(small = "x4046",
+         medium = "x4225",
+         large = "x4770",
+         is_organic = type) %>% 
+  mutate(is_organic = as.logical(if_else(is_organic == "organic", 1, 0)),
+         year = as.factor(year),
+         region = as.factor(region),
+         month = month(ymd(date)),
+         season = case_when(
+           month == c(12,1,2) ~ "winter",
+           month == c(3,4,5) ~ "spring",
+           month == c(6,7,8) ~ "summer",
+           TRUE ~ "autumn"),
+         season = factor(season, levels = c("spring", "summer", "autumn", "winter")))
+  
+# 
+# long_avocado <- main_avocado %>% 
+#   pivot_longer(c("small","medium", "large"),names_to = "avocado_size", values_to = "avocado_sold" ) %>% 
+#   pivot_longer(c("small_bags","large_bags", "x_large_bags"),names_to = "bag_type", values_to = "bag_sold") %>% 
+#   mutate(bag_type = str_replace_all(bag_type, c("_bags"), "")) %>% 
+#   mutate(bag_type = str_replace_all(bag_type, "_", ""))
+```
+
+```{r}
+avocado <- main_avocado %>% 
+  select(-date, -region, -month, - year)
+
+num_avocado <- avocado %>% 
+  select_if(is.numeric)
+
+nnum_avocado <- avocado %>% 
+  select_if(function(x) !is.numeric(x))
+nnum_avocado$average_price <- num_avocado$average_price
+
+ggpairs(num_avocado)
+ggpairs(nnum_avocado)
+
+```
+# Manual Modelling
+
+- Choose Season as the first predictor
+- All P values are falling below 5%alpha
+- Good diagnostic plots showing homoscedasticity for RvF & SL plots along with good fits for the NQ-Q
+
+```{r}
+null_mod <- lm(average_price~1, data = avocado)
+moda <- lm(average_price~is_organic, data = avocado)
+
+summary(moda)
+anova(null_mod, moda)
+autoplot(moda)
+```
+
+```{r}
+modb <- lm(average_price~is_organic + season, data = avocado)
+
+summary(modb)
+anova(moda, modb)
+autoplot(modb)
+```
+
+```{r}
+modc <- lm(average_price~is_organic + season + total_volume, data = avocado)
+summary(modc)
+anova(modc, modb)
+autoplot(modc)
+```
+
+# Automatic Modelling
+
+```{r}
+regsubset_exhaustive <- regsubsets(average_price~.,
+                                   data = avocado,
+                                   nvmax = 8,
+                                   method = "exhaustive")
+
+
+sum_regsubset_exhaustive <- summary(regsubset_exhaustive)
+```
+
+```{r}
+plot(regsubset_exhaustive, scale = "adjr2")
+plot(sum_regsubset_exhaustive$bic, type = "b")
+plot(sum_regsubset_exhaustive$rsq, type = "b")
+```
+```{r}
+summary(regsubset_exhaustive)$which[3,]
+# total_volume, small_bags, is_organic, year,season
+```
+
+```{r}
+
+automoda <- lm(average_price ~ is_organic + medium + large + small_bags + x_large_bags, data = avocado)
+automodb <- lm(average_price ~ is_organic + medium + large + small_bags + x_large_bags + season, data = avocado)
+automodc <- lm(average_price ~ is_organic + medium, data = avocado)
+
+summary(automoda)
+summary(automodb)
+
+autoplot(automodc)
+
+# Check whether 
+anova(automoda,automodb)
+```
+
+
+
+
+
+
+
