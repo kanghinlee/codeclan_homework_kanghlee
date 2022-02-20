@@ -19,7 +19,7 @@ library(caret)
 ```
 ## Load in Dataframe
 ```{r}
-raw_avocado <- read_csv("1_weekend_homework_part1/data/avocado.csv")
+raw_avocado <- read_csv("notes/data/avocado.csv")
 
 ## Sanity Check
 # Find nas in data
