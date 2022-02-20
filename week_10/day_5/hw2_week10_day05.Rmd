@@ -1,0 +1,41 @@
+---
+title: "Week10 Day05 Homework2"
+output: html_notebook
+---
+
+
+## Task 01 - I want to predict how well 6 year-olds are going to do in their final school exams. Using the following variables am I likely under-fitting, fitting well or over-fitting? Postcode, gender, reading level, score in maths test, date of birth, family income.
+
+Answer: Under-fit.
+
+
+## Task 02 - If I have two models, one with an AIC score of 34,902 and the other with an AIC score of 33,559 which model should I use?
+
+Answer: The least AIC (i.e. 33559)
+
+## Task 03 - I have two models, the first with: r-squared: 0.44, adjusted r-squared: 0.43. The second with: r-squared: 0.47, adjusted r-squared: 0.41. Which one should I use?
+
+Answer: Second ($r^2$ = 0.47, $r_{adj} = 0.41$), as the adjusted.r.squre value only reflected on the performance of adding new predictors that is underperform then expected. However, the $r^2$ has increased by 3%.
+
+
+## Task 04 - I have a model with the following errors: RMSE error on test set: 10.3, RMSE error on training data: 10.4. Do you think this model is over-fitting?
+
+Answer: under-fitting on the train model as the mean $error^2$ between the predicted data vs real data's margin increases.
+
+
+## Task 05 - How does k-fold validation work?
+
+Answer: Split dataset into k segments (usually k = 20). Use the first dataset as test dataset and the rest (19) as train dataset. After the first model ran with the first dataset, the method uses the second dataset as the test dataset, and the remained dataset as train dataset, and so on until it reaches the last (20th) dataset. Then average out the error of the model to produce an accuracy model that can explain the dataset well.
+
+## Task 06 - What is a validation set? When do you need one?
+
+Validation set is stand alone dataset that is not involved in the training or to compare models. Its sole purpose is being used after finished selecting the model and use the validation dataset to validate the accuracy of the model itself, to avoid evidence of over fitting that many contain hyperparameters.
+
+## Task 07 - Describe how backwards selection works.
+
+Answer: Method will first run the model with every predictors in the dataframe against the response variable. Then eliminate the predictor that produces the least $r^2$ value (i.e. least impact towards the response), and so on and so forth until there is none left.
+
+
+## Task 08 - Describe how best subset selection works.
+
+Answer: Subset selection or exhaustive search is search all possible combinations of the predictors for the best model (model with the highest $r^2$).

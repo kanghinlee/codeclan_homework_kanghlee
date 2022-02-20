@@ -1,8 +1,11 @@
 ---
 title: "Week10 Day05 Homework 1"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
+## Library
 ```{r}
 library(tidyverse)
 library(janitor)
@@ -11,18 +14,21 @@ library(modelr)
 library(ggfortify)
 library(GGally)
 library(leaps)
+library(glmulti)
+library(caret)
 ```
+## Load in Dataframe
 ```{r}
 raw_avocado <- read_csv("1_weekend_homework_part1/data/avocado.csv")
-```
 
-```{r}
+## Sanity Check
 # Find nas in data
 raw_avocado %>% 
   summarise(across(.cols = everything(),.fns = ~sum(is.na(.))))
 ```
 
 
+## Exploratory Analysis 
 ```{r}
 main_avocado <- raw_avocado %>% 
   clean_names() %>% 
@@ -36,105 +42,311 @@ main_avocado <- raw_avocado %>%
          region = as.factor(region),
          month = month(ymd(date)),
          season = case_when(
-           month == c(12,1,2) ~ "winter",
-           month == c(3,4,5) ~ "spring",
-           month == c(6,7,8) ~ "summer",
-           TRUE ~ "autumn"),
-         season = factor(season, levels = c("spring", "summer", "autumn", "winter")))
-  
-# 
-# long_avocado <- main_avocado %>% 
-#   pivot_longer(c("small","medium", "large"),names_to = "avocado_size", values_to = "avocado_sold" ) %>% 
-#   pivot_longer(c("small_bags","large_bags", "x_large_bags"),names_to = "bag_type", values_to = "bag_sold") %>% 
-#   mutate(bag_type = str_replace_all(bag_type, c("_bags"), "")) %>% 
-#   mutate(bag_type = str_replace_all(bag_type, "_", ""))
+           month == c(12,1,2) ~ "4",
+           month == c(3,4,5) ~ "1",
+           month == c(6,7,8) ~ "2",
+           TRUE ~ "3"),
+         season = factor(season))
 ```
 
+## Diagnostics Plot
 ```{r}
 avocado <- main_avocado %>% 
-  select(-date, -region, -month, - year)
+  select(-date, -region, -month, - year, -total_bags)
 
 num_avocado <- avocado %>% 
   select_if(is.numeric)
 
 nnum_avocado <- avocado %>% 
   select_if(function(x) !is.numeric(x))
-nnum_avocado$average_price <- num_avocado$average_price
+
+nnum_avocado$average_price <- num_avocado$average_price 
+
+# Convert numeric df into log scale since the distrubution are all askews and non-correlated
+# Mutate All inf & -inf into 0 
+lognum_avocado = log(num_avocado)%>% 
+  mutate_all(function(x) ifelse(is.infinite(x), 0, x)) 
+
+# Construct df with log numbers combine with non-numeric variables.
+# Remove total_bags to avoid multicollinearity
+log_avocado <- bind_cols(lognum_avocado, nnum_avocado[1:ncol(nnum_avocado)-1])
 
 ggpairs(num_avocado)
+ggpairs(lognum_avocado)
 ggpairs(nnum_avocado)
-
 ```
+
 # Manual Modelling
 
 - Choose Season as the first predictor
 - All P values are falling below 5%alpha
 - Good diagnostic plots showing homoscedasticity for RvF & SL plots along with good fits for the NQ-Q
 
+### Model A - total_volume vs average_price
 ```{r}
-null_mod <- lm(average_price~1, data = avocado)
-moda <- lm(average_price~is_organic, data = avocado)
-
+moda <- lm(average_price ~ total_volume, data = log_avocado)
 summary(moda)
-anova(null_mod, moda)
 autoplot(moda)
 ```
-
+### Model B - is_organic
 ```{r}
-modb <- lm(average_price~is_organic + season, data = avocado)
-
+modb <- lm(average_price ~ total_volume + is_organic, data = log_avocado)
 summary(modb)
-anova(moda, modb)
-autoplot(modb)
+anova(moda,modb)
 ```
 
+
+### Model B - Find Next Perdictor
 ```{r}
-modc <- lm(average_price~is_organic + season + total_volume, data = avocado)
+
+avocado_modb_resid <- log_avocado %>%
+  add_residuals(moda) %>%
+  select(-c("average_price", "total_volume", "is_organic"))
+
+avocado_modb_resid %>% 
+  ggpairs()
+```
+
+### Model C - season
+```{r}
+# Checked with avg_price vs season diagnostic plot, everything is good.
+modc <- lm(average_price ~ total_volume + is_organic + season, data = log_avocado)
 summary(modc)
 anova(modc, modb)
-autoplot(modc)
 ```
 
-# Automatic Modelling
+### Model C - Find Next Perdictor
+```{r}
+
+avocado_modc_resid <- log_avocado %>%
+  add_residuals(modb) %>%
+  select(-c("average_price", "total_volume", "is_organic", "season"))
+
+avocado_modc_resid %>% 
+  ggpairs()
+```
+
+### Model D - large_bags
+```{r}
+# Checked with avg_price vs season diagnostic plot, everything is good.
+modd <- lm(average_price ~ total_volume + is_organic + season + large_bags, data = log_avocado)
+# autoplot(modd)
+summary(modd)
+anova(modc, modd)
+```
+
+
+### Model D - Find Next Perdictor
+```{r}
+
+avocado_modd_resid <- log_avocado %>%
+  add_residuals(modc) %>%
+  select(-c("average_price", "total_volume", "is_organic", "season", "large_bags"))
+
+avocado_modd_resid %>% 
+  ggpairs()
+```
+
+### Model E - Medium
+```{r}
+# Checked with avg_price vs season diagnostic plot, everything is good.
+manual_model <- lm(average_price ~ total_volume + is_organic + season + large_bags + medium, data = log_avocado)
+summary(manual_model)
+anova(modd, manual_model)
+autoplot(manual_model)
+```
+
+# Model_E relative importance analysis.
+- season       0.01748384
+- total_volume 0.29870614
+- is_organic   0.35751411
+- large_bags   0.16599661
+- medium       0.16029929
+```{r}
+relaimpo::calc.relimp(manual_model, type = "lmg", rela = TRUE)
+
+a <- broom::glance(modc)%>% 
+  select(1,2,8,9)
+b <- broom::glance(modd)%>% 
+  select(1,2,8,9)
+c <- broom::glance(manual_model) %>% 
+  select(1,2,8,9)
+
+manual_modelling_result <- bind_rows(a,b,c) %>% 
+  add_column(model_name = c("c", "d", "final"), .before = "r.squared")
+manual_modelling_result
+```
+
+
+
+# Automatic Modelling - Full Mode Exhaustive Method
+
+### Best 5 Predictors 
+- is_organic(11)
+- total_volume(9)
+- medium(9)
+- small_bags(8)
+- large_bags(8)
 
 ```{r}
 regsubset_exhaustive <- regsubsets(average_price~.,
-                                   data = avocado,
-                                   nvmax = 8,
+                                   data = log_avocado,
+                                   nvmax = 11,
                                    method = "exhaustive")
 
 
 sum_regsubset_exhaustive <- summary(regsubset_exhaustive)
+sum_regsubset_exhaustive
 ```
 
+
+
+
+# Exhaustive Method Summary
+- total_volume, medium, small_bags, large_bags, x_large_bags, is_organic, season
 ```{r}
+# Penalized measure with adjusted R Squared
 plot(regsubset_exhaustive, scale = "adjr2")
+# Penalized measure with bic
+
+
 plot(sum_regsubset_exhaustive$bic, type = "b")
+# R-squared value
 plot(sum_regsubset_exhaustive$rsq, type = "b")
+
+# Show 7-predictors model: 
+# summary(regsubset_exhaustive)$which[7,]
+# total_volume, medium, total_bags, small_bags, large_bags, x_large_bags, is_organic,season4 (winter)
 ```
+
+### Anova with season
+Results shows P value of ~0 meaning season predictor is infact stat-significant 
+Diagnostic plots shows good relations between residuals plots,
+Ideal for Normal Q-Q plot with slight, askew on the left
 ```{r}
-summary(regsubset_exhaustive)$which[3,]
-# total_volume, small_bags, is_organic, year,season
+# model without seasons
+exhaustive_model_nosea <- lm(average_price ~ total_volume + medium + small_bags + large_bags + x_large_bags + is_organic, data = log_avocado)
+
+# model with seasons
+exhaustive_model <- lm(average_price ~ total_volume + medium + small_bags + large_bags + x_large_bags + is_organic + season, data = log_avocado)
+
+summary(exhaustive_model)
+anova(exhaustive_model_nosea, exhaustive_model)
+
+
+autoplot(exhaustive_model)
+```
+
+# GLMulti - Genetic Algorithm for the 7-models predictors
+Note: Takes a long time to run
+```{r}
+# glmuti_avocado <- log_avocado %>%
+#   select(average_price, total_volume, medium, small_bags, large_bags, x_large_bags, is_organic, season)
+# 
+# glmulti_fit <- glmulti(
+#   average_price ~ .,
+#   data = glmuti_avocado,
+#   level = 2, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
+#   minsize = 0, # no min size of model
+#   maxsize = -1, # -1 = no max size of model
+#   marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
+#   method = "g", # the problem is too large for exhaustive search, so search using a genetic algorithm
+#   crit = bic, # criteria for model selection is BIC value (lower is better)
+#   plotty = FALSE, # don't plot models as function runs
+#   report = FALSE, # do produce reports as function runs
+#   confsetsize = 50, # return best 100 solutions
+#   fitfunction = lm # fit using the `lm` function
+# )
+# 
+# summary(glmulti_fit)
+```
+
+# GA Results
+- season:x_large_bags' p-value is above 0.05, hence there is insignificant difference when adding season:x_large_bags terms
+```{r}
+genetic_moda <-    lm(average_price ~ total_volume + season + medium + small_bags +              
+                        large_bags + x_large_bags + is_organic + medium:total_volume +            
+                        small_bags:total_volume + large_bags:total_volume + large_bags:medium +    
+                        large_bags:small_bags + x_large_bags:medium + x_large_bags:small_bags +  
+                        x_large_bags:large_bags + is_organic:total_volume + is_organic:small_bags + 
+                        is_organic:large_bags + is_organic:x_large_bags + season:x_large_bags, data = log_avocado)
+
+summary(genetic_moda)
+# autoplot(genetic_moda)
 ```
 
 ```{r}
+genetic_model <-    lm(average_price ~ total_volume + season + medium + small_bags +              
+                        large_bags + x_large_bags + is_organic + medium:total_volume +            
+                        small_bags:total_volume + large_bags:total_volume + large_bags:medium +    
+                        large_bags:small_bags + x_large_bags:medium + x_large_bags:small_bags +  
+                        x_large_bags:large_bags + is_organic:total_volume + is_organic:small_bags + 
+                        is_organic:large_bags + is_organic:x_large_bags, data = log_avocado)
 
-automoda <- lm(average_price ~ is_organic + medium + large + small_bags + x_large_bags, data = avocado)
-automodb <- lm(average_price ~ is_organic + medium + large + small_bags + x_large_bags + season, data = avocado)
-automodc <- lm(average_price ~ is_organic + medium, data = avocado)
-
-summary(automoda)
-summary(automodb)
-
-autoplot(automodc)
-
-# Check whether 
-anova(automoda,automodb)
+summary(genetic_model)
+# autoplot(genetic_model)
 ```
 
 
 
+# K-Fold-Validation 
+## Manual
+manual_model <- lm(average_price ~ total_volume + is_organic + season + large_bags + medium, data = log_avocado)
+```{r}
 
+fold20_model <- trainControl(method = "cv", # cross-validation
+                           number = 20, # 20-fold
+                           savePredictions = TRUE) # save all predictions
 
+kfold_manual_model <- train(average_price ~ total_volume + is_organic + season + large_bags + medium, 
+               data = log_avocado,
+               trControl = fold20_model, # use options defined above
+               method = 'lm')
+
+kfold_exhaustive_model <- train(average_price ~ total_volume + medium + small_bags + large_bags + x_large_bags + is_organic + season, 
+               data = log_avocado,
+               trControl = fold20_model, # use options defined above
+               method = 'lm')
+
+kfold_genetic_model <- train(average_price ~ total_volume + season + medium + small_bags +              
+                        large_bags + x_large_bags + is_organic + medium:total_volume +            
+                        small_bags:total_volume + large_bags:total_volume + large_bags:medium +    
+                        large_bags:small_bags + x_large_bags:medium + x_large_bags:small_bags +  
+                        x_large_bags:large_bags + is_organic:total_volume + is_organic:small_bags + 
+                        is_organic:large_bags + is_organic:x_large_bags, 
+               data = log_avocado,
+               trControl = fold20_model, # use options defined above
+               method = 'lm')
+```
+
+# Results
+```{r}
+# Validation Results
+type <-  c("manual", "exhaustive", "genetic")
+rmse <- c(mean(kfold_manual_model$resample$RMSE), mean(kfold_exhaustive_model$resample$RMSE),mean(kfold_genetic_model$resample$RMSE) )
+rsq <- c(mean(kfold_manual_model$resample$Rsquared), mean(kfold_exhaustive_model$resample$Rsquared),  mean(kfold_genetic_model$resample$Rsquared))
+
+result_validation <- data.frame(type, rmse, rsq)
+
+# Model Selection Results
+# summary(manual_model)
+# summary(exhaustive_model)
+# summary(genetic_model)
+
+a <- broom::glance(manual_model)%>% 
+  select(1,2,8,9)
+b <- broom::glance(exhaustive_model)%>% 
+  select(1,2,8,9)
+d <- broom::glance(genetic_model)%>% 
+  select(1,2,8,9)
+
+result_model <- bind_rows(a,b,d) %>% 
+  add_column(model_name = c("Manual", "Exhaustive", "Genetic"), .before = "r.squared")
+
+# Final Model Selection Results
+result_final <- bind_cols(result_model, result_validation) %>% 
+  select(-type)
+result_final
+```
 
 
