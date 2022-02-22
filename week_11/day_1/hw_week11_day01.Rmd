@@ -12,7 +12,7 @@ Clustering is used in unsupervised learning where data points with similar prope
 # Task 02 - K-means Clustering
 
 #### What it is
-iterative clustering algorithm
+unsupervised iterative clustering algorithm
 
 Much like the K-fold-validation, The K in K-mean clustering is number of clusters (groups) you choose 
 Random select 3 distinct datapoints as `cluster point` which is essentially centroids where variances are equally spread.
