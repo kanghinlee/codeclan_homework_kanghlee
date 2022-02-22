@@ -1,0 +1,70 @@
+---
+title: "Week11 Day02 HW"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+```
+
+```{r}
+titanic <- read_csv("data/titanic_decision_tree_data.csv")
+```
+```{r}
+titanic_clean <- titanic %>%
+  filter(survived %in% c(0,1)) %>%
+# Convert to factor level
+    mutate(sex              = as.factor(sex), 
+           age_status       = as.factor(if_else(age <= 16, "child", "adult")),
+           class            = factor(pclass, levels = c(3,2,1), labels = c("Lower", "Middle", "Upper")), 
+           survived_flag    = factor(survived, levels = c(0,1), labels = c("No", "Yes")), 
+           port_embarkation = as.factor(embarked)) %>%
+  select(sex, age_status, class, port_embarkation, sib_sp, parch, survived_flag) %>%
+  na.omit()
+```
+
+### Question 02
+```{r}
+ggpairs(titanic_clean)
+```
+
+```{r}
+titanic_clean %>% 
+  ggplot()+
+  aes(x = survived_flag, group = sex)+
+  geom_boxplot()
+
+```
+
+
+```{r}
+n_data <- nrow(titanic_clean)
+test_index <- sample(1:n_data, size = n_data*0.2)
+titanic_test <- slice(titanic_clean, test_index)
+titanic_train <- slice(titanic_clean, -test_index)
+```
+
+
+```{r}
+titanic_fit <- rpart(formula = survived_flag ~ .,
+                     data = titanic_train,
+                     method = 'class')
+
+rpart.plot(titanic_fit,
+           yesno = 2,
+           fallen.leaves = TRUE,
+           faclen = 0, # length of class, 0 = show all character name
+           digits = 4)
+
+rpart.plot(titanic_fit,
+           yesno = 2,
+           fallen.leaves = TRUE,
+           faclen = 6, # length of class, 0 = show all character name
+           digits = 4,
+           extra = 101)
+```
+
+
