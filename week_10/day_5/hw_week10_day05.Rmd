@@ -296,7 +296,53 @@ summary(genetic_model)
 # autoplot(genetic_model)
 ```
 
+# Manual with region
+```{r}
 
+region_avocado <- main_avocado %>% 
+  select(-date, -month, - year, -total_bags)
+
+# Separate the ggpairs into numeric and non-numeric data.frame
+region_num_avocado <- region_avocado %>% 
+  select_if(is.numeric)
+
+region_nnum_avocado <- region_avocado %>% 
+  select_if(function(x) !is.numeric(x))
+
+# Convert numeric df into log scale since the distrubution are all askews and non-correlated
+# Mutate All inf & -inf into 0 
+region_lognum_avocado <- log(region_num_avocado[2:ncol(region_num_avocado)])%>% 
+  mutate_all(function(x) ifelse(is.infinite(x), 0, x)) %>% 
+  add_column(average_price = avocado$average_price,.before = 1)
+
+# Construct df with log numbers combine with non-numeric variables.
+# Remove total_bags to avoid multicollinearity
+region_log_avocado <- bind_cols(region_lognum_avocado, region_nnum_avocado)
+
+
+```
+
+
+
+# Manual Modelling with Region
+```{r}
+region_null_mod <- lm(average_price ~ 1, data = region_log_avocado)
+region_model <- lm(average_price ~ region + total_volume + medium + small_bags + large_bags + x_large_bags + is_organic + season, data = region_log_avocado)
+
+anova(region_null_mod, region_model)
+summary(region_model)
+autoplot(region_model)
+```
+## Manual Model with Region Predictors Contribution Summary
+- total_volume 0.34018105
+- is_organic   0.32804171
+- region       0.31797731
+- season       0.01379993
+```{r}
+broom::glance(region_moda) 
+summary(region_moda)
+relaimpo::calc.relimp(region_moda, type = "lmg", rela = TRUE)
+```
 
 # K-Fold-Validation 
 ## Manual
@@ -326,6 +372,12 @@ kfold_genetic_model <- train(average_price ~ total_volume + season + medium + sm
                data = log_avocado,
                trControl = fold20_model, # use options defined above
                method = 'lm')
+
+kfold_region_model <- train(average_price ~ region + total_volume + medium + small_bags + large_bags + x_large_bags + is_organic + season, 
+               data = region_log_avocado,
+               trControl = fold20_model, # use options defined above
+               method = 'lm')
+
 ```
 
 # Results
@@ -337,9 +389,9 @@ The genetic model induced interaction terms that increases the $r^{2}$ value, al
 The accuracy of the 3 models should be further confirm with validation/untest data.
 ```{r}
 # Validation Results
-type <-  c("manual", "exhaustive", "genetic")
-valid_rmse <- c(mean(kfold_manual_model$resample$RMSE), mean(kfold_exhaustive_model$resample$RMSE),mean(kfold_genetic_model$resample$RMSE) )
-valid_rsq <- c(mean(kfold_manual_model$resample$Rsquared), mean(kfold_exhaustive_model$resample$Rsquared),  mean(kfold_genetic_model$resample$Rsquared))
+type <-  c("manual", "exhaustive", "genetic", "manual_with_region")
+valid_rmse <- c(mean(kfold_manual_model$resample$RMSE), mean(kfold_exhaustive_model$resample$RMSE),mean(kfold_genetic_model$resample$RMSE), mean(kfold_region_model$resample$RMSE) )
+valid_rsq <- c(mean(kfold_manual_model$resample$Rsquared), mean(kfold_exhaustive_model$resample$Rsquared),  mean(kfold_genetic_model$resample$Rsquared),mean(kfold_region_model$resample$Rsquared))
 
 result_validation <- data.frame(type, valid_rmse, valid_rsq)
 
@@ -352,62 +404,16 @@ a <- broom::glance(manual_model)%>%
   select(1,2,8,9)
 b <- broom::glance(exhaustive_model)%>% 
   select(1,2,8,9)
-d <- broom::glance(genetic_model)%>% 
+c <- broom::glance(genetic_model)%>% 
+  select(1,2,8,9)
+d <- broom::glance(region_model)%>% 
   select(1,2,8,9)
 
-result_model <- bind_rows(a,b,d) %>% 
-  add_column(model_name = c("Manual", "Exhaustive", "Genetic"), .before = "r.squared")
+result_model <- bind_rows(a,b,c,d) %>% 
+  add_column(model_name = c("Manual", "Exhaustive", "Genetic", "Manual_with_region"), .before = "r.squared")
 
 # Final Model Selection Results
 result_final <- bind_cols(result_model, result_validation) %>% 
   select(-type)
 result_final
-```
-
-# Try with region
-```{r}
-
-region_avocado <- main_avocado %>% 
-  select(-date, -month, - year, -total_bags)
-
-# Separate the ggpairs into numeric and non-numeric data.frame
-region_num_avocado <- region_avocado %>% 
-  select_if(is.numeric)
-
-region_nnum_avocado <- region_avocado %>% 
-  select_if(function(x) !is.numeric(x))
-
-# Convert numeric df into log scale since the distrubution are all askews and non-correlated
-# Mutate All inf & -inf into 0 
-region_lognum_avocado <- log(region_num_avocado[2:ncol(region_num_avocado)])%>% 
-  mutate_all(function(x) ifelse(is.infinite(x), 0, x)) %>% 
-  add_column(average_price = avocado$average_price,.before = 1)
-
-# Construct df with log numbers combine with non-numeric variables.
-# Remove total_bags to avoid multicollinearity
-region_log_avocado <- bind_cols(region_lognum_avocado, region_nnum_avocado)
-
-
-```
-
-# Manual Modelling with Region
-```{r}
-region_null_mod <- lm(average_price ~ 1, data = region_log_avocado)
-region_moda <- lm(average_price ~ region + is_organic + total_volume + season, data = region_log_avocado)
-
-anova(region_null_mod, region_moda)
-summary(region_moda)
-autoplot(region_moda)
-```
-
-
-## Manual Model with Region Predictors Contribution Summary
-- total_volume 0.34018105
-- is_organic   0.32804171
-- region       0.31797731
-- season       0.01379993
-```{r}
-broom::glance(region_moda) 
-summary(region_moda)
-relaimpo::calc.relimp(region_moda, type = "lmg", rela = TRUE)
 ```

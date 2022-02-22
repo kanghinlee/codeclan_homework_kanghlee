@@ -1,0 +1,48 @@
+---
+title: "Week11 Day01 Homework"
+output: html_notebook
+---
+
+# Task 01 - Difference between classification and clustering
+
+Classification and Clustering are ways to segregate data points into groups.
+Classification is supervised by pre-defined labels that are assigned to instances by properties, 
+Clustering is used in unsupervised learning where data points with similar properties & features are bonded in groups.
+
+# Task 02 - K-means Clustering
+
+#### What it is
+iterative clustering algorithm
+
+Much like the K-fold-validation, The K in K-mean clustering is number of clusters (groups) you choose 
+Random select 3 distinct datapoints as `cluster point` which is essentially centroids where variances are equally spread.
+measure distance between `discrete data points` and the `3 clusterpoints`
+assign `group` with the `nearest cluster point`
+After the selection process, calculating the mean of each cluster and the variance per cluster group
+repeat the process n-times and return the best results when the most even variances as the K-value.
+
+The manual 
+
+### Strenghts weaknesses
+#### Strength
+
+- Simple, Transparent process
+- Scales to large datasets
+- Algorithm will converge
+- Easily adapts to new examples
+
+#### Weakness:
+- Results may vary depends on the size of the data
+- Results may vary if the data is not normally distributed
+- Clustering outlines
+- model complexity increases with dimensions, will require featuring engineering (i.e. PCA) to reduce dimensions.
+
+### Suitable area of application
+Most common exploratory data analysis
+
+### application example for a particular problem
+
+- Superstore studying local customers buying preferences
+
+
+### include a figure... ?
