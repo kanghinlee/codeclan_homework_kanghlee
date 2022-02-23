@@ -1,0 +1,122 @@
+---
+title: "Week11 Day03 Homework"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(dendextend)
+library(corrplot)
+library(janitor)
+library(broom)
+```
+
+```{r}
+cust_raw <- read_csv("data/mall_customers.csv")
+```
+
+```{r}
+#sanity check for NA
+any(is.na(cust_raw))
+```
+
+```{r}
+cust <- cust_raw %>% 
+  clean_names() %>% 
+  rename(score = spending_score_1_100,
+         income = annual_income_k) %>% # Rename col-names for simplicity
+  select(-gender, -customer_id, -age) # Drop cat-variable, gender for simplicity 
+```
+
+```{r}
+# cust %>% 
+#   group_by(gender) %>% 
+#   summarise(income_mean = round(mean(income)),
+#             income_sd = sd(income),
+#             score_mean = round(mean(score)),
+#             score_sd = sd(score))
+# 
+# GGally::ggpairs(cust)
+```
+```{r}
+cust_scale <- cust %>% 
+  mutate_all(scale)
+
+cluster_cust <- kmeans(cust_scale,
+                       centers = 2,
+                       nstart = 25)
+cluster_cust
+```
+
+```{r}
+tidy(cluster_cust,
+     col.names = colnames(cust_scale))
+
+augment(cluster_cust, cust)
+glance(cluster_cust)
+```
+
+```{r}
+max_k <- 20
+k_clusters <- tibble(k = 1:max_k) %>%
+  mutate(
+    kclust = map(k, ~ kmeans(cust_scale, .x, nstart = 25)), 
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, cust)
+  )
+
+k_clusters
+```
+
+
+```{r}
+clusterings <- k_clusters %>% 
+  unnest(glanced)
+
+# Elbow Plot
+fviz_nbclust(cust_scale, 
+             kmeans, 
+             method = "wss", 
+             nstart = 25)+
+  labs(title = "Elbow Diagram")
+
+# Silhouette coefficient
+fviz_nbclust(cust_scale, 
+             kmeans, 
+             method = "silhouette", 
+             nstart = 25)+
+  labs(title = "Silhouette Diagram")
+
+fviz_nbclust(cust_scale, 
+             kmeans, 
+             method = "gap_stat", 
+             nstart = 25,
+             k.max = 10)+
+  labs(title = "Gap Stat Diagram")
+
+```
+## Finding K Value Summary
+Elbow Diagram: Gradient per increase-cluster began to level off after $K = 5$.
+Silhouette Diagram: Max $S_{i_{max}}$ occurred at $K = 5$
+Gap Stat Diagram: Shows the optimal K value is $K = 1$
+
+
+
+# Visualise K-Mean Clustering Results
+```{r}
+ clusterings %>% 
+  unnest(cols = c(augmented)) %>%
+  filter(k <= 5) %>%
+  ggplot(aes(x = score, y = income)) +
+  geom_point(aes(color = .cluster))+
+  labs(title = "Cluster Plot Diagram, K = 6")
+
+```
+
+## Result Summary
+Diagram above showed the visualisation of the k-mean cluster plot for score vs. income with 5 groups of cluster. The variable we considers are `annual_income`, `spending_score` only. The diagram indicate a well-defined cluster group of 5, four groups are laying on on each corners and one in the middle. Albeit, there are evidence with overlapping data points between group 1 and group 2.
+
+Overall, the data is suitable with k-mean clustering technique and yet it could be further improve the results by adding in the catagorical varaibles such as age group & gender to establish more insights towards the dataset.
