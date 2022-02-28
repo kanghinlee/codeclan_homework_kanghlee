@@ -1,0 +1,130 @@
+---
+title: "Week11 Day05 HW"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(janitor)
+library(GGally)
+library(ggfortify)
+library(glmulti)
+library(broom)
+library(pROC)
+```
+
+```{r}
+juice_raw <- read_csv("note_logistic_homework/data/orange_juice.csv") %>% 
+  clean_names()
+
+```
+
+```{r}
+
+juice <- juice_raw %>% 
+  mutate(store_id = factor(store_id), 
+         special_ch = factor(special_ch),
+         special_mm = factor(special_mm), 
+         store7 = factor(store7), 
+         store = factor(store),
+         purchase = factor(if_else(purchase == "MM", 1, 0))) %>% 
+  rename(is_mm = purchase) %>% 
+  select(-weekof_purchase, -store7, -store, -sale_price_mm, -sale_price_ch, -list_price_diff, -disc_ch, -disc_mm, -price_diff)
+```
+
+
+```{r}
+# Sanity Check for any NAs in the dataset
+any(is.na(juice))
+# Sanity Check for any linear relationship of independent varaibles in the dataset
+alias(is_mm ~., data = juice)
+```
+
+
+```{r}
+
+jui_num <- juice %>% 
+  select(where(is.numeric)) %>% 
+  add_column(is_mm = juice$is_mm,.before = 1)
+
+jui_nnum <- juice %>% 
+  select_if(negate(is.numeric))
+
+ggpairs(jui_num)
+ggpairs(jui_nnum)
+```
+
+```{r}
+# get how many rows we have in total to work out the percentage
+n_data <- nrow(juice)
+
+# create a test sample index
+test_index <- sample(1:n_data, size = n_data*0.2)
+
+# create test set
+juice_test  <- slice(juice, test_index)
+
+# create training set
+juice_train <- slice(juice, -test_index)
+```
+
+
+```{r}
+jui_modela <- glmulti(
+              is_mm ~ ., 
+              data = juice_train,
+              level = 1,               # No interactions considered, main effects only
+              method = "h",            # Exhaustive approach
+              crit = "bic",            # BIC as criteria
+              confsetsize = 10,        # Keep 10 best models
+              plotty = F, 
+              report = F,              # No plots, but provide interim reports
+              fitfunction = "glm",     # glm function
+              family = binomial(link = "logit")) # binomial family for logistic regression
+```
+
+```{r}
+jui_modela
+summary(jui_modela)
+```
+
+```{r}
+jui_moda <- glm(is_mm ~ price_ch + price_mm + loyal_ch + pct_disc_mm + pct_disc_ch, 
+                data = juice, 
+                family = binomial(link = "logit"))
+jui_pred <- juice_test %>% 
+  add_predictions(jui_moda, type = "response")
+jui_pred
+```
+
+```{r}
+clean_names(tidy(jui_moda))
+clean_names(glance(jui_moda))
+```
+
+
+```{r}
+jui_roc <- jui_pred %>% 
+  roc(response = is_mm, predictor = pred)
+
+roc_curve <- ggroc(
+  data = list(mod1 = jui_roc)
+)
+roc_curve
+auc(jui_roc)
+```
+
+
+
+```{r}
+# set.seed(1234)
+# 
+# n_dat <- nrow(juice_raw)
+# 
+# test_index <- (1:nro)
+```
+
+
+
+
